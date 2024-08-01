@@ -1,0 +1,24 @@
+//Exporting Landsat 8 Images
+
+//Load Landsat 8
+var image = ee.ImageCollection("LANDSAT/LC08/C02/T1_TOA")
+.filterDate('2018-01-01', '2023-12-31')
+.filterBounds(roi)
+.sort('CLOUD_COVER')
+.first();
+
+var visPaaramsTrue = {bands:['B4', 'B3', 'B2'], min:0, max:3000, gamma: 1.4}
+Map.addLayer(image.clip(roi), visPaaramsTrue, 'Landsat2018');
+Map.centerObject(roi, 10);
+
+// Keep only 'B' bands
+image = image.select('B.+')
+
+// Export to drive
+Export.image.toDrive({
+  image: image,
+  description: 'Landsat2018',
+  scale: 30,
+  region: roi,
+  maxPixels: 1e13
+});
